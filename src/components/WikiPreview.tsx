@@ -17,6 +17,28 @@ export function WikiPreview({ html }: WikiPreviewProps) {
     .replace(/```$/, "")
     .trim();
 
+  // Inject a script that gracefully handles Mermaid parse errors
+  const mermaidErrorHandler = `
+<script type="module">
+  // Wait for Mermaid to finish rendering, then hide any error containers
+  setTimeout(() => {
+    document.querySelectorAll('[id^="d"]').forEach(el => {
+      if (el.innerHTML && el.innerHTML.includes('Syntax error')) {
+        el.closest('pre, div')?.replaceWith(
+          Object.assign(document.createElement('div'), {
+            style: 'padding:1.5rem;border-radius:12px;background:#f8f9fa;border:1px dashed #dee2e6;color:#868e96;text-align:center;font-size:0.875rem;font-family:Inter,sans-serif;margin:1rem 0;',
+            innerHTML: '📊 <em>Architecture diagram — view the downloaded HTML for the full interactive version.</em>'
+          })
+        );
+      }
+    });
+  }, 3000);
+</script>`;
+
+  const finalHtml = cleanHtml.includes('</body>')
+    ? cleanHtml.replace('</body>', mermaidErrorHandler + '</body>')
+    : cleanHtml + mermaidErrorHandler;
+
   const handleDownload = () => {
     const blob = new Blob([cleanHtml], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -53,7 +75,7 @@ export function WikiPreview({ html }: WikiPreviewProps) {
       <div className="flex-1 bg-white rounded-b-2xl border border-t-0 overflow-hidden shadow-2xl min-h-[75vh] relative ring-1 ring-zinc-200/50">
         <iframe
           ref={iframeRef}
-          srcDoc={cleanHtml}
+          srcDoc={finalHtml}
           className="w-full h-full min-h-[75vh] border-none"
           title="Wiki Preview"
           sandbox="allow-scripts allow-popups allow-forms allow-same-origin"

@@ -1,10 +1,9 @@
 import { Octokit } from "octokit";
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
-
-export async function getRepoContext(url: string) {
+export async function getRepoContext(url: string, customToken?: string) {
+  const auth = customToken || process.env.GITHUB_TOKEN;
+  const octokit = new Octokit(auth ? { auth } : {});
+  
   // Clean URL: Remove .git suffix and trailing slashes
   const cleanUrl = url.replace(/\.git$/, "").replace(/\/$/, "");
   const match = cleanUrl.match(/github\.com\/([^/]+)\/([^/]+)/);

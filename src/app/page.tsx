@@ -7,13 +7,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { WikiPreview } from "@/components/WikiPreview";
+import { SettingsModal } from "@/components/SettingsModal";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [isStarted, setIsStarted] = useState(false);
+  const [customGithubToken, setCustomGithubToken] = useState("");
+  const [customGeminiKey, setCustomGeminiKey] = useState("");
   
   const { complete, completion, isLoading, error } = useCompletion({
     api: "/api/generate",
+    streamProtocol: "text",
     onFinish: () => {
       console.log("Wiki generation finished.");
     },
@@ -23,7 +27,12 @@ export default function Home() {
     e.preventDefault();
     if (!url) return;
     setIsStarted(true);
-    complete(url);
+    complete(url, {
+      headers: {
+        ...(customGithubToken && { "x-github-token": customGithubToken }),
+        ...(customGeminiKey && { "x-gemini-key": customGeminiKey }),
+      },
+    });
   };
 
   return (
@@ -37,7 +46,11 @@ export default function Home() {
             </div>
             <span className="font-black text-xl tracking-tighter">REPOWIKI</span>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+             <SettingsModal onSave={(github, gemini) => {
+               setCustomGithubToken(github);
+               setCustomGeminiKey(gemini);
+             }} />
              <Button variant="ghost" size="sm" className="hidden sm:flex text-zinc-500 font-medium">Docs</Button>
              <Button variant="outline" size="sm" className="rounded-full border-zinc-200">Star on GitHub</Button>
           </div>
