@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 interface SettingsModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
   onSave: (githubToken: string, geminiKey: string) => void;
 }
 
-export function SettingsModal({ onSave }: SettingsModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function SettingsModal({ isOpen, setIsOpen, onSave }: SettingsModalProps) {
   const [githubToken, setGithubToken] = useState("");
   const [geminiKey, setGeminiKey] = useState("");
 
@@ -33,17 +34,7 @@ export function SettingsModal({ onSave }: SettingsModalProps) {
   };
 
   return (
-    <>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={() => setIsOpen(true)}
-        className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-      >
-        <Settings className="w-5 h-5" />
-      </Button>
-
-      <AnimatePresence>
+    <AnimatePresence>
         {isOpen && (
           <>
             <motion.div
@@ -75,17 +66,17 @@ export function SettingsModal({ onSave }: SettingsModalProps) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-bold flex items-center gap-2">
-                      <Lock className="w-4 h-4" /> GitHub Token <span className="text-xs font-normal text-zinc-500">(Optional)</span>
+                      <Lock className="w-4 h-4" /> GitHub Token
                     </label>
                     <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="text-xs text-indigo-500 hover:underline flex items-center gap-1">
                       <HelpCircle className="w-3 h-3" /> Get Token
                     </a>
                   </div>
-                  <Input 
-                    type="password" 
-                    placeholder="ghp_..." 
-                    value={githubToken} 
-                    onChange={(e) => setGithubToken(e.target.value)} 
+                  <Input
+                    type="password"
+                    placeholder="ghp_..."
+                    value={githubToken}
+                    onChange={(e) => setGithubToken(e.target.value)}
                     className="bg-zinc-50 dark:bg-zinc-950 focus-visible:ring-indigo-500"
                   />
                   <p className="text-xs text-zinc-500">Required if you want to analyze private repositories.</p>
@@ -100,11 +91,11 @@ export function SettingsModal({ onSave }: SettingsModalProps) {
                       <HelpCircle className="w-3 h-3" /> Get Key
                     </a>
                   </div>
-                  <Input 
-                    type="password" 
-                    placeholder="AIza..." 
-                    value={geminiKey} 
-                    onChange={(e) => setGeminiKey(e.target.value)} 
+                  <Input
+                    type="password"
+                    placeholder="AIza..."
+                    value={geminiKey}
+                    onChange={(e) => setGeminiKey(e.target.value)}
                     className="bg-zinc-50 dark:bg-zinc-950 focus-visible:ring-indigo-500"
                   />
                   <p className="text-xs text-zinc-500">Add your own key to avoid rate limits.</p>
@@ -112,15 +103,14 @@ export function SettingsModal({ onSave }: SettingsModalProps) {
               </div>
 
               <div className="flex gap-3 justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                 <Button variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
-                 <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Save Keys</Button>
+                <Button variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
+                <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Save Keys</Button>
               </div>
-              
+
               <p className="text-[10px] text-center text-zinc-400">Keys are stored securely in your browser's local storage and are only sent directly to the API during generation.</p>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-    </>
   );
 }

@@ -12,8 +12,12 @@ export async function POST(req: Request) {
       return new Response("URL is required", { status: 400 });
     }
 
-    const githubToken = req.headers.get("x-github-token") || undefined;
+    const githubToken = req.headers.get("x-github-token");
     const geminiKey = req.headers.get("x-gemini-key") || process.env.GEMINI_API_KEY;
+
+    if (!githubToken) {
+      return new Response("GitHub Token is required. Please add it in the Settings.", { status: 400 });
+    }
 
     const context = await getRepoContext(prompt, githubToken);
 
