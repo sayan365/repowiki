@@ -15,6 +15,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RepoWiki | GitHub to Documentation Generator",
   description: "Transform any GitHub repository into a beautiful, Notion-style wiki using AI.",
+  appleWebApp: { title: "repowiki" },
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
