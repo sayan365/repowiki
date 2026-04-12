@@ -6,16 +6,16 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const { prompt } = await req.json();
 
-    if (!url) {
+    if (!prompt) {
       return new Response("URL is required", { status: 400 });
     }
 
-    const context = await getRepoContext(url);
+    const context = await getRepoContext(prompt);
 
     const result = streamText({
-      model: google("gemini-1.5-flash"),
+      model: google("gemini-2.5-flash"),
       system: `You are an expert full-stack developer and technical educator. Your job is to analyze the provided GitHub repository data (README, file tree, dependencies, or metadata) and deduce how the project works. 
 Generate a clean, modern, beginner-friendly 'Wiki-style' HTML website that explains the project. 
 Output ONLY valid, raw HTML code containing embedded CSS and JS. Do NOT wrap the output in markdown code blocks like \`\`\`html. 
@@ -38,7 +38,7 @@ Design Requirements:
       prompt: `Analyze this repository and generate the wiki HTML:\n\n${context}`,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error: any) {
     console.error("Error during wiki generation:", error);
     return new Response(JSON.stringify({ error: error.message || "Failed to generate wiki" }), {
