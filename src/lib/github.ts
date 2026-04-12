@@ -36,28 +36,11 @@ export async function getRepoContext(url: string, customToken?: string) {
       console.log("README not found, falling back to heuristic scan");
     }
 
-    // 3. Heuristic Scan Fallback
-    let stack = "";
+    let stackCode = "";
     let fileTree = "";
+    let treeItems: any[] = [];
 
-    // Fetch package.json or equivalent if README is missing or short
-    if (!readme || readme.length < 200) {
-      try {
-        const { data: packageJsonData } = await octokit.rest.repos.getContent({
-          owner,
-          repo,
-          path: "package.json",
-          headers: {
-            accept: "application/vnd.github.raw",
-          },
-        });
-        stack = `package.json content:\n${packageJsonData}`;
-      } catch (e) {
-        // Not a JS repo or no package.json
-      }
-    }
-
-    // Fetch File Tree (Top-level)
+    // Fetch File Tree (First, so we know what exists)
     try {
       const { data: treeData } = await octokit.rest.git.getTree({
         owner,
@@ -65,15 +48,50 @@ export async function getRepoContext(url: string, customToken?: string) {
         tree_sha: repository.default_branch,
         recursive: "true",
       });
+      treeItems = treeData.tree || [];
       
       // Filter out common noise and limit size
-      fileTree = treeData.tree
+      fileTree = treeItems
         .filter(item => !item.path?.includes('node_modules') && !item.path?.includes('.git/'))
         .map(item => `${item.type === 'tree' ? '[DIR] ' : '[FILE] '}${item.path}`)
-        .slice(0, 150) // limit to avoid token limits
+        .slice(0, 300) // limit to avoid token limits
         .join("\n");
     } catch (e) {
       console.error("Failed to fetch tree", e);
+    }
+
+    // Super-charged "Front Door" logic: Find core files dynamically
+    if (treeItems.length > 0) {
+      const targetPaths = new Set([
+        "package.json", "requirements.txt", "go.mod", "Cargo.toml", "pom.xml", // DNA Files
+        "docker-compose.yml", "docker-compose.yaml", "Dockerfile",             // Infra
+        "prisma/schema.prisma",                                                // DB
+        "src/index.js", "src/index.ts", "src/main.ts", "src/main.tsx",         // Entry points
+        "app/layout.tsx", "src/app/layout.tsx", "app/page.tsx",                // Next.js
+        "main.py", "app.py", "manage.py"                                       // Python
+      ]);
+
+      const filesToFetch = treeItems
+        .filter(item => item.type === 'blob' && item.path && targetPaths.has(item.path))
+        .slice(0, 5); // Fetch at most 5 core files to avoid rate/context limits
+
+      const fetchPromises = filesToFetch.map(async (fileNode) => {
+        try {
+          const { data } = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: fileNode.path as string,
+            headers: { accept: "application/vnd.github.raw" },
+          });
+          // Slice file content to prevent massive files from eating context
+          return `--- FILE: ${fileNode.path} ---\n${String(data).slice(0, 2500)}`;
+        } catch {
+          return "";
+        }
+      });
+
+      const fileContents = await Promise.all(fetchPromises);
+      stackCode = fileContents.filter(Boolean).join("\n\n");
     }
 
     return `
@@ -86,8 +104,8 @@ Main Language: ${repository.language}
 README CONTENT:
 ${readme || "N/A"}
 
-STACK INFO (Heuristic):
-${stack || "N/A"}
+CORE LOGIC & DNA FILES:
+${stackCode || "N/A"}
 
 FILE STRUCTURE:
 ${fileTree || "N/A"}
