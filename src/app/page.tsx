@@ -273,7 +273,7 @@ export default function Home() {
                       <p className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-500 to-zinc-900 dark:from-zinc-400 dark:to-white">
                         Sifting through files & folders...
                       </p>
-                      <p className="text-sm text-zinc-400 font-medium tracking-wide">GEMINI IS CRAFTING THE DOCUMENTATION</p>
+                      <p className="text-sm text-zinc-400 font-medium tracking-wide">AI IS CRAFTING THE DOCUMENTATION</p>
                    </div>
                 </div>
               )}

@@ -44,11 +44,12 @@ export default function DocsPage() {
               </div>
               <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-600 dark:text-zinc-400 leading-loose">
                 <p>
-                  RepoWiki uses the <strong>Vercel AI SDK</strong> and <strong>Google Gemini 2.5 Flash</strong> to semantically understand GitHub repositories. When you paste a URL:
+                  RepoWiki uses the <strong>Vercel AI SDK</strong> to orchestrate a resilient multi-model pipeline. When you paste a URL:
                 </p>
                 <ol className="list-decimal pl-6 space-y-2 mt-4">
-                  <li>We fetch the repository&apos;s file tree, dependencies (e.g. <code className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded">package.json</code>), and standard documentation (<code className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded">README.md</code>).</li>
-                  <li>The context is passed to the Gemini Vision model with a highly-tuned instruction set.</li>
+                  <li>We fetch the repository&apos;s file tree, core infrastructure files (e.g. <code className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded">docker-compose.yml</code>), and dependencies.</li>
+                  <li>The context is sent to <strong>Google Gemini 2.5 Flash</strong> as the primary engine.</li>
+                  <li>If Gemini is overloaded or fails during streaming, the system automatically falls back to <strong>OpenAI GPT-4o mini</strong>.</li>
                   <li>The AI streams down a styled, standalone HTML file complete with Mermaid.js architecture diagrams.</li>
                 </ol>
               </div>
@@ -102,15 +103,16 @@ export default function DocsPage() {
               </div>
               <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-600 dark:text-zinc-400 leading-loose">
                 <p>
-                  RepoWiki covers the cost of AI generation for casual users using a fallback API key. If you are generating many wikis, you may encounter a <strong>Rate Limit Error</strong>.
+                  RepoWiki covers the cost of AI generation for casual users using fallback API keys. If you are generating many wikis, or if the primary Gemini model is at capacity, you may encounter an error or high demand message.
                 </p>
                 <p className="mt-4">
-                  To bypass these limits, you can provide your own Gemini API Key:
+                  To bypass these limits and ensure 100% uptime, you can provide your own API keys:
                 </p>
                 <ul className="list-disc pl-6 space-y-2 mt-4">
-                  <li>Get a free API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">Google AI Studio</a>.</li>
-                  <li>Open the <strong>Settings</strong> modal in RepoWiki and paste your key.</li>
-                  <li>Your key is stored securely in your browser&apos;s <code className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-sm">localStorage</code> and is never saved to a database.</li>
+                  <li><strong>Gemini:</strong> Get a free API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">Google AI Studio</a>.</li>
+                  <li><strong>OpenAI:</strong> Get an API key from the <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">OpenAI Dashboard</a> to enable the GPT-4o mini fallback.</li>
+                  <li>Open the <strong>Settings</strong> modal in RepoWiki and paste your keys.</li>
+                  <li>Your keys are stored securely in your browser&apos;s <code className="bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded text-sm">localStorage</code> and are never saved to a database.</li>
                 </ul>
               </div>
             </section>

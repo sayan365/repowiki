@@ -6,6 +6,7 @@
     <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js" />
     <img alt="TailwindCSS" src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=flat-square&logo=tailwind-css" />
     <img alt="Google Gemini" src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=flat-square&logo=google" />
+    <img alt="OpenAI" src="https://img.shields.io/badge/GPT--4o_mini-412991?style=flat-square&logo=openai" />
     <img alt="Vercel AI SDK" src="https://img.shields.io/badge/Vercel_AI_SDK-3.0-000000?style=flat-square&logo=vercel" />
   </p>
 
@@ -19,9 +20,9 @@
 
 **RepoWiki** is a modern, AI-powered web application that takes any GitHub repository URL (public or private) and instantly generates beautiful, understandable documentation wikis.
 
-Instead of just parsing a standard `README.md`, RepoWiki acts as an intelligent codebase reader. It scans the repository file tree, extracts core structural files (`package.json`, `docker-compose.yml`, `schema.prisma`), and feeds them into the **Google Gemini 2.5 Flash** model using a deeply-optimized XML "Mega-Prompt." 
+Instead of just parsing a standard `README.md`, RepoWiki acts as an intelligent codebase reader. It scans the repository file tree, extracts core structural files (`package.json`, `docker-compose.yml`, `schema.prisma`), and feeds them into a multi-model pipeline. 
 
-The result? A hyper-accurate, streaming HTML wiki complete with real-world analogies and embedded Mermaid.js architecture diagrams.
+By default, RepoWiki uses **Google Gemini 2.5 Flash** for its extreme speed and context window. However, it now features an automatic failover mechanism: if Gemini is unavailable or overloaded, the system instantly switches to **OpenAI GPT-4o mini** to ensure your documentation is generated without interruption.
 
 ## 📋 Table of Contents
 - [✨ Features](#-features)
@@ -50,8 +51,9 @@ RepoWiki isn't just a standard LLM wrapper. It utilizes a specialized parsing pi
 
 1. **Tree Extraction:** Fetches the full Git File Tree via the GitHub REST API.
 2. **Intelligent DNA Parsing:** Automatically identifies your core infrastructure (e.g., `docker-compose.yml`), entry points (`main.ts`), and dependencies (`package.json`).
-3. **XML Mega-Prompting:** Feeds the extracted code to Gemini wrapped in strict XML tags (`<role>`, `<website_structure>`, `<mermaid_critical_rules>`) ensuring no hallucinated syntax or broken UI.
-4. **Resilient Output:** Safely streams the raw HTML/CSS/JS output into a sandboxed `iframe`, catching invalid outputs gracefully.
+3. **Multi-Model Orchestration:** Context is wrapped in strict XML tags (`<role>`, `<website_structure>`, `<mermaid_critical_rules>`) and sent to Gemini 2.5 Flash.
+4. **Resilient Fallback:** If the primary stream fails or Gemini returns an error, the system transparently falls back to **OpenAI GPT-4o mini** to complete the generation.
+5. **Sanitized Output:** Safely streams the raw HTML/CSS/JS output into a sandboxed `iframe`, catching invalid outputs gracefully.
 
 ---
 
@@ -64,7 +66,8 @@ Because GitHub's unauthenticated API is incredibly strict (60 limits/hour per IP
 By clicking the **Settings (Gear Icon)** in the UI:
 1. Users can enter their own **GitHub Token** (bypassing rate limits and enabling Private Repository scanning).
 2. Users can provide their own **Gemini API Key**.
-3. **Privacy First:** Keys are saved **locally in the browser (`localStorage`)** and are sent directly to the API handler during generation. They *never* touch a database.
+3. Users can provide their own **OpenAI API Key** (for use as a fallback engine).
+4. **Privacy First:** Keys are saved **locally in the browser (`localStorage`)** and are sent directly to the API handler during generation. They *never* touch a database.
 
 ---
 
@@ -94,6 +97,7 @@ Fill in your `.env.local` file. These serve as the ultimate fallback keys if a u
 # Optional Fallbacks for the API Route:
 GITHUB_TOKEN=your_fine_grained_github_token_here
 GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ### 3. Start the Development Server
