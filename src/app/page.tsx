@@ -89,9 +89,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-100">
-      <div className="max-w-6xl mx-auto px-6 py-12 md:py-20">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-8 sm:py-12 md:py-20">
         {/* Navigation / Header */}
-        <header className="flex justify-between items-center mb-16">
+        <header className="flex justify-between items-center mb-12 sm:mb-16">
           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => window.location.reload()}>
             <div className="w-10 h-10 bg-zinc-900 dark:bg-white rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
                <Terminal className="w-6 h-6 text-white dark:text-zinc-900" />
@@ -116,13 +116,13 @@ export default function Home() {
                  setCustomGptKey(gpt);
                }} 
              />
-             <Link href="/docs" className="hidden sm:flex">
-               <Button variant="ghost" size="sm" className="text-zinc-500 font-medium">Docs</Button>
+             <Link href="/docs" className="flex">
+               <Button variant="ghost" size="sm" className="text-zinc-500 font-medium text-xs sm:text-sm">Docs</Button>
              </Link>
              <a href="https://github.com/sayan365/repowiki" target="_blank" rel="noreferrer">
                <Button variant="outline" size="sm" className="rounded-full border-zinc-200 gap-2 font-semibold hover:bg-zinc-100">
                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                 Star on GitHub
+                 <span className="hidden sm:inline">Star on GitHub</span>
                </Button>
              </a>
           </div>
@@ -136,9 +136,9 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col items-center text-center space-y-12"
+              className="flex flex-col items-center text-center space-y-8 sm:space-y-12"
             >
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -149,72 +149,75 @@ export default function Home() {
                   <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Now Powered by Gemini 2.5 Flash</span>
                 </motion.div>
                 
-                <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[1] text-zinc-900 dark:text-white">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1] text-zinc-900 dark:text-white">
                   Turn Code into <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-gradient">Beautiful Wiki.</span>
                 </h1>
                 
-                <p className="max-w-2xl mx-auto text-xl text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">
+                <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed px-2">
                   The fastest way to generate high-quality, beginner-friendly documentation for your GitHub repositories. Just paste and generate.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="w-full max-w-2xl relative group px-2">
-                <div className="relative flex items-center p-2 bg-white dark:bg-zinc-900 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-indigo-500 transition-all">
-                  <div className="pl-6 text-zinc-400">
+              <form onSubmit={handleSubmit} className="w-full max-w-2xl relative group px-3 sm:px-2">
+                <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 p-2 bg-white dark:bg-zinc-900 rounded-2xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] ring-1 ring-zinc-200 dark:ring-zinc-800 focus-within:ring-indigo-500 transition-all">
+                  <div className="hidden sm:flex pl-4 sm:pl-6 text-zinc-400">
                     <Terminal className="w-5 h-5" />
                   </div>
                   <Input
-                    className="h-14 border-none bg-transparent shadow-none focus-visible:ring-0 text-lg placeholder:text-zinc-400"
+                    className="h-12 sm:h-14 border-none bg-transparent shadow-none focus-visible:ring-0 text-sm sm:text-base md:text-lg placeholder:text-zinc-400 px-3 sm:px-2"
                     placeholder="https://github.com/vercel/next.js"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     disabled={isLoading}
                   />
-                  <Button
-                     type="button"
-                     variant="ghost"
-                     onClick={() => setUrl("")}
-                     className={`mr-2 rounded-full w-10 h-10 p-0 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 ${!url ? 'hidden' : ''}`}
-                     disabled={isLoading}
-                  >
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="h-14 rounded-full bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:opacity-90 transition-all font-bold px-10 gap-2 shrink-0 shadow-lg"
-                    disabled={isLoading || !url}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        Generate Wiki
-                        <Wand2 className="w-4 h-4 text-indigo-400" />
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Button
+                       type="button"
+                       variant="ghost"
+                       onClick={() => setUrl("")}
+                       className={`rounded-full w-8 sm:w-10 h-8 sm:h-10 p-0 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 flex-shrink-0 ${!url ? 'hidden' : ''}`}
+                       disabled={isLoading}
+                    >
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="h-12 sm:h-14 rounded-full bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:opacity-90 transition-all font-bold px-4 sm:px-10 gap-1 sm:gap-2 shrink-0 shadow-lg text-xs sm:text-sm md:text-base"
+                      disabled={isLoading || !url}
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <span className="hidden sm:inline">Generate Wiki</span>
+                          <span className="sm:hidden">Generate</span>
+                          <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-400" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </form>
 
-              <div className="flex flex-wrap justify-center gap-12 mt-16 opacity-30 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-12 mt-12 sm:mt-16 opacity-30 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
                 <div className="flex flex-col items-center gap-2">
-                   <div className="w-12 h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
-                     <BookOpen className="w-5 h-5" />
+                   <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
+                     <BookOpen className="w-4 sm:w-5 h-4 sm:h-5" />
                    </div>
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Auto-README</span>
+                   <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-zinc-500">Auto-README</span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                   <div className="w-12 h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
-                     <Wand2 className="w-5 h-5" />
+                   <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
+                     <Wand2 className="w-4 sm:w-5 h-4 sm:h-5" />
                    </div>
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">AI Analysis</span>
+                   <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-zinc-500">AI Analysis</span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                   <div className="w-12 h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
-                     <Download className="w-5 h-5" />
+                   <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full border border-dashed border-zinc-400 flex items-center justify-center">
+                     <Download className="w-4 sm:w-5 h-4 sm:h-5" />
                    </div>
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Static Export</span>
+                   <span className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-zinc-500">Static Export</span>
                 </div>
               </div>
             </motion.div>
@@ -283,7 +286,7 @@ export default function Home() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="p-8 md:p-12 bg-white dark:bg-zinc-950 border border-red-100 dark:border-red-900/40 rounded-[2.5rem] shadow-2xl text-center space-y-6 relative overflow-hidden"
+                  className="p-6 sm:p-8 md:p-12 bg-white dark:bg-zinc-950 border border-red-100 dark:border-red-900/40 rounded-2xl sm:rounded-[2.5rem] shadow-2xl text-center space-y-6 relative overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500" />
                   <div className="flex justify-center mb-4">
@@ -294,15 +297,15 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <p className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Generation Halted</p>
-                    <p className="text-base text-zinc-500 font-medium max-w-lg mx-auto leading-relaxed">
+                    <p className="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Generation Halted</p>
+                    <p className="text-sm sm:text-base text-zinc-500 font-medium max-w-lg mx-auto leading-relaxed px-2">
                       {getFriendlyErrorMessage(displayError)}
                     </p>
                   </div>
-                  <div className="pt-6 flex items-center justify-center gap-4">
+                  <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-3 px-2">
                     <Button 
                       onClick={() => setIsSettingsOpen(true)} 
-                      className="rounded-full bg-zinc-900 dark:bg-white dark:text-zinc-950 font-bold px-8 hover:scale-105 transition-transform"
+                      className="rounded-full bg-zinc-900 dark:bg-white dark:text-zinc-950 font-bold px-6 sm:px-8 hover:scale-105 transition-transform text-sm sm:text-base w-full sm:w-auto"
                     >
                       <Settings className="w-4 h-4 mr-2" />
                       Check Settings
@@ -310,7 +313,7 @@ export default function Home() {
                     <Button 
                       variant="outline" 
                       onClick={() => { setIsStarted(false); setUrl(""); }} 
-                      className="rounded-full font-bold px-8"
+                      className="rounded-full font-bold px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto"
                     >
                       Go Back
                     </Button>
