@@ -3,11 +3,11 @@ import { Octokit } from "octokit";
 export async function getRepoContext(url: string, customToken?: string) {
   const auth = customToken || process.env.GITHUB_TOKEN;
   const octokit = new Octokit(auth ? { auth } : {});
-  
+
   // Clean URL: Remove .git suffix and trailing slashes
   const cleanUrl = url.replace(/\.git$/, "").replace(/\/$/, "");
   const match = cleanUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
-  
+
   if (!match) {
     throw new Error("Invalid GitHub URL. Please provide a URL like https://github.com/owner/repo");
   }
@@ -49,7 +49,7 @@ export async function getRepoContext(url: string, customToken?: string) {
         recursive: "true",
       });
       treeItems = treeData.tree || [];
-      
+
       // Filter out common noise and limit size
       fileTree = treeItems
         .filter(item => !item.path?.includes('node_modules') && !item.path?.includes('.git/'))

@@ -17,8 +17,9 @@ export default function Home() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [customGithubToken, setCustomGithubToken] = useState("");
   const [customGeminiKey, setCustomGeminiKey] = useState("");
+  const [customGptKey, setCustomGptKey] = useState("");
   
-  const { complete, completion, isLoading, error } = useCompletion({
+  const { complete, completion, isLoading, error, stop } = useCompletion({
     api: "/api/generate",
     streamProtocol: "text",
     onFinish: () => {
@@ -41,16 +42,57 @@ export default function Home() {
       headers: {
         ...(customGithubToken && { "x-github-token": customGithubToken }),
         ...(customGeminiKey && { "x-gemini-key": customGeminiKey }),
+        ...(customGptKey && { "x-gpt-key": customGptKey }),
       },
     });
   };
+
+  const getFriendlyErrorMessage = (errorObj: Error | undefined) => {
+    if (!errorObj) return null;
+    let text = errorObj.message || "";
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed.error) text = parsed.error;
+    } catch(e) {}
+    
+    const lowerError = text.toLowerCase();
+    
+    if (lowerError.includes("high demand") || lowerError.includes("503") || lowerError.includes("overloaded") || lowerError.includes("retryerror") || lowerError.includes("unavailable") || lowerError.includes("demand is usually temporary")) {
+      return "The AI service is currently experiencing high demand. Please try again in a few moments, or setup your own Gemini API key in settings.";
+    }
+    if (lowerError.includes("github token") || lowerError.includes("bad credentials") || lowerError.includes("401") || lowerError.includes("token is required")) {
+      return "There is an issue with your GitHub Token. Make sure it's valid and has the correct permissions.";
+    }
+    if (lowerError.includes("rate limit") || lowerError.includes("429") || lowerError.includes("too many requests")) {
+      return "API rate limit exceeded. Please wait a bit or add your own Gemini API key or OpenAI API key in settings.";
+    }
+    if (lowerError.includes("api key") || lowerError.includes("invalid_api_key") || lowerError.includes("api_key_invalid") || lowerError.includes("invalid api key")) {
+      return "Your API Key (Gemini or OpenAI) seems to be invalid. Please check it in settings.";
+    }
+    if (lowerError.includes("not found") || lowerError.includes("404")) {
+      return "The repository could not be found. Please check the URL and ensure your GitHub Token has access to it.";
+    }
+    
+    return text || "An unexpected error occurred. Please check your API keys and the repository URL.";
+  };
+
+  // Detect the REPOWIKI_ERROR sentinel injected by the streaming pipeline on the server.
+  // This catches in-stream errors (e.g. Gemini 503) that would otherwise be silently dropped.
+  const sentinelIndex = completion ? completion.indexOf("\x00REPOWIKI_ERROR:") : -1;
+  const streamErrorMsg = sentinelIndex !== -1 ? completion!.slice(sentinelIndex + 17) : null;
+  const cleanCompletion = sentinelIndex !== -1 ? completion!.slice(0, sentinelIndex) : completion;
+
+  const displayError: Error | null =
+    error ||
+    (streamErrorMsg ? new Error(streamErrorMsg) : null) ||
+    (isStarted && !isLoading && !cleanCompletion ? new Error("The request returned empty. The AI may be overloaded or your API key may be missing.") : null);
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 selection:bg-indigo-100">
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-20">
         {/* Navigation / Header */}
         <header className="flex justify-between items-center mb-16">
-          <div className="flex items-center gap-2 group cursor-pointer">
+          <div className="flex items-center gap-2 group cursor-pointer" onClick={() => window.location.reload()}>
             <div className="w-10 h-10 bg-zinc-900 dark:bg-white rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
                <Terminal className="w-6 h-6 text-white dark:text-zinc-900" />
             </div>
@@ -68,9 +110,10 @@ export default function Home() {
              <SettingsModal 
                isOpen={isSettingsOpen}
                setIsOpen={setIsSettingsOpen}
-               onSave={(github, gemini) => {
+               onSave={(github, gemini, gpt) => {
                  setCustomGithubToken(github);
                  setCustomGeminiKey(gemini);
+                 setCustomGptKey(gpt);
                }} 
              />
              <Link href="/docs" className="hidden sm:flex">
@@ -129,6 +172,15 @@ export default function Home() {
                     disabled={isLoading}
                   />
                   <Button
+                     type="button"
+                     variant="ghost"
+                     onClick={() => setUrl("")}
+                     className={`mr-2 rounded-full w-10 h-10 p-0 text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 ${!url ? 'hidden' : ''}`}
+                     disabled={isLoading}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                  </Button>
+                  <Button
                     type="submit"
                     className="h-14 rounded-full bg-zinc-950 dark:bg-white dark:text-zinc-950 hover:opacity-90 transition-all font-bold px-10 gap-2 shrink-0 shadow-lg"
                     disabled={isLoading || !url}
@@ -179,9 +231,9 @@ export default function Home() {
                     <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center text-white">
                       <BookOpen className="w-5 h-5" />
                     </div>
-                    <h2 className="text-3xl font-black tracking-tight shrink-0">Wiki Generator</h2>
+                    <h2 className="text-xl md:text-3xl font-black tracking-tight shrink-0">Wiki Generator</h2>
                   </div>
-                  <p className="text-zinc-500 font-medium truncate max-w-md">
+                  <p className="text-sm md:text-base text-zinc-500 font-medium truncate max-w-md">
                     Target: <span className="text-indigo-500">{url}</span>
                   </p>
                 </div>
@@ -190,9 +242,9 @@ export default function Home() {
                   <Button 
                     variant="ghost" 
                     onClick={() => {
+                       stop();
                        setUrl("");
                        setIsStarted(false);
-                       window.location.reload();
                     }}
                     className="text-zinc-500 font-bold hover:bg-zinc-100 rounded-full px-6"
                   >
@@ -208,13 +260,13 @@ export default function Home() {
                 </div>
               </div>
 
-              {isLoading && !completion && (
+              {isLoading && !cleanCompletion && (
                 <div className="flex flex-col items-center justify-center py-40 space-y-6">
                    <div className="relative">
                       <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full scale-150 animate-pulse" />
                       <Loader2 className="w-16 h-16 animate-[spin_2s_linear_infinite] text-indigo-500 relative" />
                    </div>
-                   <div className="text-center space-y-2">
+                   <div className="text-center space-y-2 relative z-10">
                       <p className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-500 to-zinc-900 dark:from-zinc-400 dark:to-white">
                         Sifting through files & folders...
                       </p>
@@ -223,19 +275,46 @@ export default function Home() {
                 </div>
               )}
 
-              {completion && (
-                <WikiPreview html={completion} />
+              {cleanCompletion && !displayError && (
+                <WikiPreview html={cleanCompletion} />
               )}
               
-              {error && (
+              {displayError && (
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 rounded-3xl text-red-600 dark:text-red-400 text-center space-y-4"
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  className="p-8 md:p-12 bg-white dark:bg-zinc-950 border border-red-100 dark:border-red-900/40 rounded-[2.5rem] shadow-2xl text-center space-y-6 relative overflow-hidden"
                 >
-                  <p className="text-lg font-bold">Something went wrong</p>
-                  <p className="text-sm opacity-80">{error.message || "An unexpected error occurred. Please check your API keys and the repository URL."}</p>
-                  <Button variant="outline" onClick={() => setIsStarted(false)} className="rounded-full border-red-200">Try Again</Button>
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500" />
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center ring-8 ring-red-50/50 dark:ring-red-900/10">
+                      <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">Generation Halted</p>
+                    <p className="text-base text-zinc-500 font-medium max-w-lg mx-auto leading-relaxed">
+                      {getFriendlyErrorMessage(displayError)}
+                    </p>
+                  </div>
+                  <div className="pt-6 flex items-center justify-center gap-4">
+                    <Button 
+                      onClick={() => setIsSettingsOpen(true)} 
+                      className="rounded-full bg-zinc-900 dark:bg-white dark:text-zinc-950 font-bold px-8 hover:scale-105 transition-transform"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Check Settings
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => { setIsStarted(false); setUrl(""); }} 
+                      className="rounded-full font-bold px-8"
+                    >
+                      Go Back
+                    </Button>
+                  </div>
                 </motion.div>
               )}
             </motion.div>

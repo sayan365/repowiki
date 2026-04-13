@@ -7,29 +7,35 @@ import { Button } from "@/components/ui/button";
 interface SettingsModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onSave: (githubToken: string, geminiKey: string) => void;
+  onSave: (githubToken: string, geminiKey: string, gptKey: string) => void;
 }
 
 export function SettingsModal({ isOpen, setIsOpen, onSave }: SettingsModalProps) {
   const [githubToken, setGithubToken] = useState("");
   const [geminiKey, setGeminiKey] = useState("");
+  const [gptKey, setGptKey] = useState("");
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    // Load from local storage on mount
+    setIsHydrated(true);
+    // Load from local storage after hydration
     const savedGithub = localStorage.getItem("repowiki_github_token") || "";
     const savedGemini = localStorage.getItem("repowiki_gemini_key") || "";
+    const savedGpt = localStorage.getItem("repowiki_gpt_key") || "";
     setGithubToken(savedGithub);
     setGeminiKey(savedGemini);
+    setGptKey(savedGpt);
     // Tell parent initially loaded keys
-    if (savedGithub || savedGemini) {
-      onSave(savedGithub, savedGemini);
+    if (savedGithub || savedGemini || savedGpt) {
+      onSave(savedGithub, savedGemini, savedGpt);
     }
-  }, [onSave]);
+  }, []);
 
   const handleSave = () => {
     localStorage.setItem("repowiki_github_token", githubToken);
     localStorage.setItem("repowiki_gemini_key", geminiKey);
-    onSave(githubToken, geminiKey);
+    localStorage.setItem("repowiki_gpt_key", gptKey);
+    onSave(githubToken, geminiKey, gptKey);
     setIsOpen(false);
   };
 
@@ -99,6 +105,25 @@ export function SettingsModal({ isOpen, setIsOpen, onSave }: SettingsModalProps)
                     className="bg-zinc-50 dark:bg-zinc-950 focus-visible:ring-indigo-500"
                   />
                   <p className="text-xs text-zinc-500">Add your own key to avoid rate limits.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-bold flex items-center gap-2">
+                      <Key className="w-4 h-4" /> OpenAI API Key <span className="text-xs font-normal text-zinc-500">(Optional)</span>
+                    </label>
+                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-xs text-indigo-500 hover:underline flex items-center gap-1">
+                      <HelpCircle className="w-3 h-3" /> Get Key
+                    </a>
+                  </div>
+                  <Input
+                    type="password"
+                    placeholder="sk-..."
+                    value={gptKey}
+                    onChange={(e) => setGptKey(e.target.value)}
+                    className="bg-zinc-50 dark:bg-zinc-950 focus-visible:ring-indigo-500"
+                  />
+                  <p className="text-xs text-zinc-500">Fallback option if Gemini is unavailable. Uses GPT-4o mini model.</p>
                 </div>
               </div>
 

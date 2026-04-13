@@ -17,7 +17,31 @@ export function WikiPreview({ html }: WikiPreviewProps) {
     .replace(/```$/, "")
     .trim();
 
-  // Inject a script that gracefully handles Mermaid parse errors
+  // Check if HTML is complete and valid (must have closing tags)
+  const isCompleteHtml = cleanHtml.includes("</html>") && cleanHtml.includes("<html") && cleanHtml.includes("</body>");
+  
+  // Don't render incomplete HTML to prevent iframe from showing app UI
+  if (!isCompleteHtml) {
+    return (
+      <div className="flex flex-col gap-4 w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-zinc-950 border-x border-t rounded-t-2xl shadow-sm">
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-widest">
+              Generated Wiki
+            </span>
+            <span className="text-xs text-zinc-500">Live Preview & Download</span>
+          </div>
+        </div>
+        <div className="flex-1 bg-white rounded-b-2xl border border-t-0 overflow-hidden shadow-2xl min-h-[75vh] relative ring-1 ring-zinc-200/50 flex items-center justify-center">
+          <div className="text-center text-zinc-500">
+            <div className="animate-pulse">Rendering wiki preview...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Inject a script that gracefully handles Mermaid parse errors and prevents navigation outside iframe
   const mermaidErrorHandler = `
 <script type="module">
   // Wait for Mermaid to finish rendering, then hide any error containers
@@ -33,7 +57,24 @@ export function WikiPreview({ html }: WikiPreviewProps) {
       }
     });
   }, 3000);
+  
+  // Intercept all link clicks to keep them within the iframe
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link) {
+      const href = link.getAttribute('href');
+      // Allow hash-based navigation (TOC links)
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+  }, true);
 </script>`;
+
 
   const finalHtml = cleanHtml.includes('</body>')
     ? cleanHtml.replace('</body>', mermaidErrorHandler + '</body>')
